@@ -12,6 +12,7 @@ import path from 'path';
 import { app, BrowserWindow, shell, ipcMain } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
+import fs from 'fs';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
 
@@ -23,12 +24,34 @@ class AppUpdater {
   }
 }
 
+interface User {
+  name: string;
+}
+
 let mainWindow: BrowserWindow | null = null;
 
-ipcMain.on('ipc-example', async (event, arg) => {
-  const msgTemplate = (pingPong: string) => `IPC test: ${pingPong}`;
-  console.log(msgTemplate(arg));
-  event.reply('ipc-example', msgTemplate('pong'));
+ipcMain.on('read-data', async (event, arg) => {
+  if (!fs.existsSync('./data.json')) {
+    console.log('dosnt exist creating');
+    fs.writeFileSync('./data.json', JSON.stringify([]));
+  }
+
+  const data = fs.readFileSync('./data.json', { encoding: 'utf-8' });
+
+  event.reply('read-data', data);
+});
+
+ipcMain.on('write-data', async (event, arg) => {
+  const JSONData = fs.readFileSync('./data.json', { encoding: 'utf-8' });
+  const data = JSON.parse(JSONData) as User[];
+
+  data.push(arg);
+
+  console.log(data);
+
+  fs.writeFileSync('./data.json', JSON.stringify(data));
+
+  event.reply('write-data', data);
 });
 
 if (process.env.NODE_ENV === 'production') {
