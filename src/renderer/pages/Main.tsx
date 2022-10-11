@@ -1,11 +1,19 @@
 import { useState, useEffect, ChangeEvent } from 'react';
-import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import {
+  DataGrid,
+  GridCallbackDetails,
+  GridCellEditCommitParams,
+  GridColDef,
+  MuiBaseEvent,
+  MuiEvent,
+} from '@mui/x-data-grid';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import Switch from '@mui/material/Switch';
 import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
+import FilterDialog from 'renderer/components/FilterDialog';
 
 const columns: GridColDef[] = [
   {
@@ -60,6 +68,7 @@ const columns: GridColDef[] = [
 function Main() {
   const [data, setData] = useState<{ name: string }[] | undefined>();
   const [checked, setChecked] = useState(false);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   useEffect(() => {
     // calling IPC exposed from preload script
@@ -79,8 +88,16 @@ function Main() {
     setChecked(event.target.checked);
   };
 
-  const handleEditing = (params, event, details) => {
+  const handleEditing = (
+    params: GridCellEditCommitParams,
+    event: MuiEvent<MuiBaseEvent>,
+    details: GridCallbackDetails
+  ): void => {
     console.log(params, event, details);
+  };
+
+  const handleClose = () => {
+    setIsFilterOpen(false);
   };
 
   return (
@@ -111,7 +128,19 @@ function Main() {
             labelPlacement="start"
           />
         </FormGroup>
-        <Button startIcon={<FilterAltIcon />}>Abrir Filtros</Button>
+        <Button
+          startIcon={<FilterAltIcon />}
+          onClick={() => {
+            setIsFilterOpen(true);
+          }}
+        >
+          Abrir Filtros
+        </Button>
+        <FilterDialog
+          open={isFilterOpen}
+          onClose={handleClose}
+          columns={columns}
+        />
       </Box>
       <DataGrid
         rows={data || []}
