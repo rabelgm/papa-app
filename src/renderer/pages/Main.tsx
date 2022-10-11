@@ -1,29 +1,30 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, ChangeEvent } from 'react';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import FilterAltIcon from '@mui/icons-material/FilterAlt';
+import Switch from '@mui/material/Switch';
+import FormGroup from '@mui/material/FormGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
 
 const columns: GridColDef[] = [
   {
     field: 'building',
     headerName: 'Edificio',
-    editable: true,
   },
   {
     field: 'floor',
     headerName: 'Piso',
-    editable: true,
   },
   {
     field: 'dir',
     headerName: 'Direccion',
     type: 'number',
-    editable: true,
   },
   {
     field: 'firstName',
     headerName: 'Nombre',
     description: 'Nombre del inquilino.',
-    editable: true,
     width: 150,
   },
   {
@@ -31,39 +32,34 @@ const columns: GridColDef[] = [
     headerName: 'Apellido',
     description: 'Apellido del inquilino.',
     width: 150,
-    editable: true,
   },
   {
     field: 'phoneNumber',
     headerName: 'Movil',
     width: 150,
-    editable: true,
   },
   {
     field: 'garagePlace',
     headerName: 'Plaza',
     description: 'Plaza de Aparcamiento.',
-    editable: true,
   },
   {
     field: 'interCom',
     headerName: 'Telefonillo',
-    editable: true,
   },
   {
     field: 'keyNumb',
     headerName: 'No. Llave',
-    editable: true,
   },
   {
     field: 'role',
     headerName: 'Tipo',
-    editable: true,
   },
 ];
 
 function Main() {
   const [data, setData] = useState<{ name: string }[] | undefined>();
+  const [checked, setChecked] = useState(false);
 
   useEffect(() => {
     // calling IPC exposed from preload script
@@ -79,17 +75,51 @@ function Main() {
     };
   }, []);
 
+  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setChecked(event.target.checked);
+  };
+
+  const handleEditing = (params, event, details) => {
+    console.log(params, event, details);
+  };
+
   return (
-    <Box sx={{ height: '750px', display: 'flex', flexDirection: 'column' }}>
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100%',
+        p: 3,
+      }}
+    >
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+        }}
+      >
+        <FormGroup>
+          <FormControlLabel
+            control={
+              <Switch
+                checked={checked}
+                onChange={handleChange}
+                inputProps={{ 'aria-label': 'controlled' }}
+              />
+            }
+            label="Activar Edicion"
+            labelPlacement="start"
+          />
+        </FormGroup>
+        <Button startIcon={<FilterAltIcon />}>Abrir Filtros</Button>
+      </Box>
       <DataGrid
         rows={data || []}
-        columns={columns}
+        columns={columns.map((col) => ({ ...col, editable: checked }))}
         autoPageSize
         checkboxSelection
         disableSelectionOnClick
-        onCellEditCommit={(params, event, details) => {
-          console.log(params, event, details);
-        }}
+        onCellEditCommit={handleEditing}
       />
     </Box>
   );

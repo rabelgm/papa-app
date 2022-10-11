@@ -109,6 +109,7 @@
     }
   },
   "dependencies": {
+    "@mui/icons-material": "^5.10.6",
     "@mui/material": "^5.10.8",
     "@mui/styled-engine-sc": "^5.10.6",
     "@mui/x-data-grid": "^5.17.6",
