@@ -1,4 +1,4 @@
-import { useState, useEffect, ChangeEvent } from 'react';
+import { useState, useEffect, ChangeEvent, useDeferredValue } from 'react';
 import {
   DataGrid,
   GridCallbackDetails,
@@ -67,8 +67,10 @@ const columns: GridColDef[] = [
 
 function Main() {
   const [data, setData] = useState<{ name: string }[] | undefined>();
+  const [filters, setFilters] = useState<{ name: string }[] | undefined>();
   const [checked, setChecked] = useState(false);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const defferedData = useDeferredValue(data);
 
   useEffect(() => {
     // calling IPC exposed from preload script
@@ -96,8 +98,16 @@ function Main() {
     console.log(params, event, details);
   };
 
-  const handleClose = () => {
+  const handleApplyFilters = (filters) => {
     setIsFilterOpen(false);
+
+    const filteredData = defferedData?.filter((person) => {
+      return Object.keys(filters).every((key) => {
+        return person[key].toLowerCase().includes(filters[key].toLowerCase());
+      });
+    });
+
+    setData(filteredData);
   };
 
   return (
@@ -138,12 +148,15 @@ function Main() {
         </Button>
         <FilterDialog
           open={isFilterOpen}
-          onClose={handleClose}
+          onApply={handleApplyFilters}
+          onClose={() => {
+            setIsFilterOpen(false);
+          }}
           columns={columns}
         />
       </Box>
       <DataGrid
-        rows={data || []}
+        rows={defferedData || []}
         columns={columns.map((col) => ({ ...col, editable: checked }))}
         autoPageSize
         checkboxSelection

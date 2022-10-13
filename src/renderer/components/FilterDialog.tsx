@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
@@ -9,19 +10,23 @@ import { GridColDef } from '@mui/x-data-grid';
 
 export interface SimpleDialogProps {
   open: boolean;
+  onApply: (data: unknown) => void;
   onClose: () => void;
   columns: GridColDef[];
 }
 
 function FilterDialog(props: SimpleDialogProps) {
-  const { onClose, columns, open } = props;
+  const { onApply, onClose, columns, open } = props;
+  const [filters, setFilters] = useState({});
 
   const handleClose = () => {
+    setFilters({});
     onClose();
   };
 
-  const handleListItemClick = (value: string) => {
-    onClose();
+  const handleApply = () => {
+    onApply(filters);
+    setFilters({});
   };
 
   return (
@@ -32,17 +37,27 @@ function FilterDialog(props: SimpleDialogProps) {
           sx={{
             display: 'grid',
             gridTemplateColumns: 'auto auto auto',
-            gap: '5px',
+            gap: '15px',
+            paddingTop: '10px',
           }}
         >
           {columns.map((col) => (
-            <TextField label={col.headerName} />
+            <TextField
+              key={col.field}
+              label={col.headerName}
+              onChange={(e) => {
+                setFilters((prevState) => ({
+                  ...prevState,
+                  [col.field]: e.target.value,
+                }));
+              }}
+            />
           ))}
         </Box>
       </DialogContent>
       <DialogActions>
         <Button onClick={handleClose}>Cancelar</Button>
-        <Button onClick={handleClose} autoFocus>
+        <Button onClick={handleApply} autoFocus>
           Aplicar
         </Button>
       </DialogActions>
