@@ -74,7 +74,7 @@ function Main() {
 
   useEffect(() => {
     // calling IPC exposed from preload script
-    window.electron.ipcRenderer.once('read-data', (arg) => {
+    window.electron.ipcRenderer.on('read-data', (arg) => {
       // eslint-disable-next-line no-console
       setData(JSON.parse(arg) as { name: string }[]);
     });
@@ -98,7 +98,7 @@ function Main() {
     console.log(params, event, details);
   };
 
-  const handleApplyFilters = (filters) => {
+  const handleApplyFilters = async (filters) => {
     setIsFilterOpen(false);
 
     const filteredData = defferedData?.filter((person) => {
@@ -142,6 +142,7 @@ function Main() {
           startIcon={<FilterAltIcon />}
           onClick={() => {
             setIsFilterOpen(true);
+            window.electron.ipcRenderer.sendMessage('read-data');
           }}
         >
           Abrir Filtros
