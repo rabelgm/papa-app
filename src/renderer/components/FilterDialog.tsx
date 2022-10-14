@@ -7,17 +7,18 @@ import TextField from '@mui/material/TextField';
 import Box from '@mui/system/Box';
 import Button from '@mui/material/Button';
 import { GridColDef } from '@mui/x-data-grid';
+import { PersonFilters } from 'renderer/types/Filters';
 
 export interface SimpleDialogProps {
   open: boolean;
-  onApply: (data: unknown) => void;
+  onApply: (data: PersonFilters) => void;
   onClose: () => void;
   columns: GridColDef[];
 }
 
 function FilterDialog(props: SimpleDialogProps) {
   const { onApply, onClose, columns, open } = props;
-  const [filters, setFilters] = useState({});
+  const [filters, setFilters] = useState<PersonFilters>({});
 
   const handleClose = () => {
     setFilters({});

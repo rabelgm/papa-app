@@ -14,6 +14,8 @@ import Switch from '@mui/material/Switch';
 import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import FilterDialog from 'renderer/components/FilterDialog';
+import { PersonFilters } from 'renderer/types/Filters';
+import { Fields } from 'renderer/types/Data';
 
 const columns: GridColDef[] = [
   {
@@ -66,17 +68,17 @@ const columns: GridColDef[] = [
 ];
 
 function Main() {
-  const [data, setData] = useState<{ name: string }[] | undefined>();
-  const [filters, setFilters] = useState<{ name: string }[] | undefined>();
+  const [data, setData] = useState<Fields[]>();
+  const [filters, setFilters] = useState<PersonFilters>({});
   const [checked, setChecked] = useState(false);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const defferedData = useDeferredValue(data);
 
   useEffect(() => {
     // calling IPC exposed from preload script
-    window.electron.ipcRenderer.on('read-data', (arg) => {
+    window.electron.ipcRenderer.on('read-data', (arg: unknown) => {
       // eslint-disable-next-line no-console
-      setData(JSON.parse(arg) as { name: string }[]);
+      setData(JSON.parse(arg as string) as Fields[]);
     });
 
     window.electron.ipcRenderer.sendMessage('read-data');
@@ -98,17 +100,21 @@ function Main() {
     console.log(params, event, details);
   };
 
-  const handleApplyFilters = async (filters) => {
+  const handleApplyFilters = async (dialogFilters: PersonFilters) => {
     setIsFilterOpen(false);
-
-    const filteredData = defferedData?.filter((person) => {
-      return Object.keys(filters).every((key) => {
-        return person[key].toLowerCase().includes(filters[key].toLowerCase());
-      });
-    });
-
-    setData(filteredData);
+    setFilters(dialogFilters);
   };
+
+  const filteredData = defferedData?.filter((person) => {
+    if (Object.keys(filters).length === 0) return true;
+
+    const filterKeys = Object.keys(filters) as (keyof typeof filters)[];
+    return filterKeys.every((key) => {
+      return person[key]
+        ?.toLowerCase()
+        .includes(filters[key]?.toLowerCase() || '');
+    });
+  });
 
   return (
     <Box
@@ -157,7 +163,7 @@ function Main() {
         />
       </Box>
       <DataGrid
-        rows={defferedData || []}
+        rows={filteredData || []}
         columns={columns.map((col) => ({ ...col, editable: checked }))}
         autoPageSize
         checkboxSelection
