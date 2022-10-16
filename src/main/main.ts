@@ -47,9 +47,9 @@ ipcMain.on('write-data', async (event, arg) => {
 
   data.push(arg);
 
-  console.log(data);
+  console.log(arg);
 
-  fs.writeFileSync('./data.json', JSON.stringify(data));
+  // fs.writeFileSync('./data.json', JSON.stringify(data));
 
   event.reply('write-data', data);
 });

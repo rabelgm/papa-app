@@ -67,6 +67,11 @@ const columns: GridColDef[] = [
   },
 ];
 
+async function WriteData(params) {
+  const json = JSON.stringify(params);
+  await window.electron.ipcRenderer.sendMessage('write-data', json);
+}
+
 function Main() {
   const [data, setData] = useState<Fields[]>();
   const [filters, setFilters] = useState<PersonFilters>({});
@@ -92,12 +97,14 @@ function Main() {
     setChecked(event.target.checked);
   };
 
-  const handleEditing = (
+  const handleEditing = async (
     params: GridCellEditCommitParams,
     event: MuiEvent<MuiBaseEvent>,
     details: GridCallbackDetails
-  ): void => {
+  ): Promise<void> => {
     console.log(params, event, details);
+
+    await WriteData(params);
   };
 
   const handleApplyFilters = async (dialogFilters: PersonFilters) => {
