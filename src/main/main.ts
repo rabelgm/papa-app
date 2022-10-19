@@ -45,12 +45,10 @@ ipcMain.on('write-data', async (event, arg) => {
   const JSONData = fs.readFileSync('./data.json', { encoding: 'utf-8' });
   const data = JSON.parse(JSONData) as User[];
 
-  data.push(arg);
+  const dataIndex = data.findIndex((e) => e.id === arg[0].id);
+  data[dataIndex][arg[0].field] = arg[0].value;
 
-  console.log(arg);
-
-  // fs.writeFileSync('./data.json', JSON.stringify(data));
-
+  fs.writeFileSync('./data.json', JSON.stringify(data));
   event.reply('write-data', data);
 });
 

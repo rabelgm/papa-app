@@ -1,4 +1,5 @@
 export interface Fields {
+  id?: string;
   building?: string;
   floor?: string;
   dir?: string;

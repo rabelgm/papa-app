@@ -1,12 +1,5 @@
 import { useState, useEffect, ChangeEvent, useDeferredValue } from 'react';
-import {
-  DataGrid,
-  GridCallbackDetails,
-  GridCellEditCommitParams,
-  GridColDef,
-  MuiBaseEvent,
-  MuiEvent,
-} from '@mui/x-data-grid';
+import { DataGrid, GridCellEditCommitParams } from '@mui/x-data-grid';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
@@ -15,61 +8,11 @@ import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import FilterDialog from 'renderer/components/FilterDialog';
 import { PersonFilters } from 'renderer/types/Filters';
-import { Fields } from 'renderer/types/Data';
+import { Fields, OneOfFields } from 'renderer/types/Data';
+import columns from 'renderer/constants/DataGrid';
 
-const columns: GridColDef[] = [
-  {
-    field: 'building',
-    headerName: 'Edificio',
-  },
-  {
-    field: 'floor',
-    headerName: 'Piso',
-  },
-  {
-    field: 'dir',
-    headerName: 'Direccion',
-    type: 'number',
-  },
-  {
-    field: 'firstName',
-    headerName: 'Nombre',
-    description: 'Nombre del inquilino.',
-    width: 150,
-  },
-  {
-    field: 'lastName',
-    headerName: 'Apellido',
-    description: 'Apellido del inquilino.',
-    width: 150,
-  },
-  {
-    field: 'phoneNumber',
-    headerName: 'Movil',
-    width: 150,
-  },
-  {
-    field: 'garagePlace',
-    headerName: 'Plaza',
-    description: 'Plaza de Aparcamiento.',
-  },
-  {
-    field: 'interCom',
-    headerName: 'Telefonillo',
-  },
-  {
-    field: 'keyNumb',
-    headerName: 'No. Llave',
-  },
-  {
-    field: 'role',
-    headerName: 'Tipo',
-  },
-];
-
-async function WriteData(params) {
-  const json = JSON.stringify(params);
-  await window.electron.ipcRenderer.sendMessage('write-data', json);
+function WriteData(params: unknown) {
+  window.electron.ipcRenderer.sendMessage('write-data', [params]);
 }
 
 function Main() {
@@ -97,14 +40,18 @@ function Main() {
     setChecked(event.target.checked);
   };
 
-  const handleEditing = async (
-    params: GridCellEditCommitParams,
-    event: MuiEvent<MuiBaseEvent>,
-    details: GridCallbackDetails
-  ): Promise<void> => {
-    console.log(params, event, details);
+  const handleEditing = (params: GridCellEditCommitParams): void => {
+    const { field, id, value } = params;
 
-    await WriteData(params);
+    const old = data?.find((e) => e.id === id) as {
+      [key in OneOfFields]: string;
+    };
+
+    if (old[field as OneOfFields] === value) {
+      return;
+    }
+
+    WriteData({ field, id, value });
   };
 
   const handleApplyFilters = async (dialogFilters: PersonFilters) => {
