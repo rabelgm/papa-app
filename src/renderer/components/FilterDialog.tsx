@@ -7,7 +7,7 @@ import TextField from '@mui/material/TextField';
 import Box from '@mui/system/Box';
 import Button from '@mui/material/Button';
 import { GridColDef } from '@mui/x-data-grid';
-import { PersonFilters } from 'renderer/types/Filters';
+import { PersonFilters } from 'types/Filters';
 
 export interface SimpleDialogProps {
   open: boolean;

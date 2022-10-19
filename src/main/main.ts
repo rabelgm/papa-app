@@ -29,7 +29,7 @@ interface User {
 
 let mainWindow: BrowserWindow | null = null;
 
-ipcMain.on('read-data', async (event, arg) => {
+ipcMain.on('read-data', async (event) => {
   if (!fs.existsSync('./data.json')) {
     console.log('dosnt exist creating');
     fs.writeFileSync('./data.json', JSON.stringify([]));

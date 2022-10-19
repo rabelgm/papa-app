@@ -7,8 +7,8 @@ import Switch from '@mui/material/Switch';
 import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import FilterDialog from 'renderer/components/FilterDialog';
-import { PersonFilters } from 'renderer/types/Filters';
-import { Fields, OneOfFields } from 'renderer/types/Data';
+import { PersonFilters } from 'types/Filters';
+import { Fields, OneOfFields } from 'types/Data';
 import columns from 'renderer/constants/DataGrid';
 
 function WriteData(params: unknown) {
