@@ -1,18 +1,5 @@
-export interface Fields {
-  id?: string;
-  building?: string;
-  floor?: string;
-  dir?: string;
-  firstName?: string;
-  lastName?: string;
-  phoneNumber?: string;
-  garagePlace?: string;
-  interCom?: string;
-  keyNumb?: string;
-  role?: string;
-}
-
-export type OneOfFields =
+export type Fields =
+  | 'id'
   | 'building'
   | 'floor'
   | 'dir'
@@ -23,3 +10,6 @@ export type OneOfFields =
   | 'interCom'
   | 'keyNumb'
   | 'role';
+
+export type User = Record<Fields, string>;
+export type UserData = Partial<Record<Fields, string>>;

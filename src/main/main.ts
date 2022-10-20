@@ -13,6 +13,7 @@ import { app, BrowserWindow, shell, ipcMain } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import fs from 'fs';
+import { Fields, User } from 'types/Data';
 import { resolveHtmlPath } from './util';
 
 class AppUpdater {
@@ -21,10 +22,6 @@ class AppUpdater {
     autoUpdater.logger = log;
     autoUpdater.checkForUpdatesAndNotify();
   }
-}
-
-interface User {
-  name: string;
 }
 
 let mainWindow: BrowserWindow | null = null;
@@ -40,16 +37,21 @@ ipcMain.on('read-data', async (event) => {
   event.reply('read-data', data);
 });
 
-ipcMain.on('write-data', async (event, arg) => {
-  const JSONData = fs.readFileSync('./data.json', { encoding: 'utf-8' });
-  const data = JSON.parse(JSONData) as User[];
+ipcMain.on(
+  'write-data',
+  async (event, arg: { field: Fields; id: string; value: string }[]) => {
+    const dto = arg[0];
+    const JSONData = fs.readFileSync('./data.json', { encoding: 'utf-8' });
+    const data = JSON.parse(JSONData) as User[];
 
-  const dataIndex = data.findIndex((e) => e.id === arg[0].id);
-  data[dataIndex][arg[0].field] = arg[0].value;
+    const dataIndex = data.findIndex((e) => e.id === dto.id) as number;
 
-  fs.writeFileSync('./data.json', JSON.stringify(data));
-  event.reply('write-data', data);
-});
+    data[dataIndex][dto.field] = dto.value;
+
+    fs.writeFileSync('./data.json', JSON.stringify(data));
+    event.reply('write-data', data);
+  }
+);
 
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');

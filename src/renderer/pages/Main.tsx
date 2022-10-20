@@ -8,7 +8,7 @@ import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import FilterDialog from 'renderer/components/FilterDialog';
 import { PersonFilters } from 'types/Filters';
-import { Fields, OneOfFields } from 'types/Data';
+import { Fields, User, UserData } from 'types/Data';
 import columns from 'renderer/constants/DataGrid';
 
 function WriteData(params: unknown) {
@@ -16,7 +16,7 @@ function WriteData(params: unknown) {
 }
 
 function Main() {
-  const [data, setData] = useState<Fields[]>();
+  const [data, setData] = useState<UserData[]>();
   const [filters, setFilters] = useState<PersonFilters>({});
   const [checked, setChecked] = useState(false);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -26,7 +26,7 @@ function Main() {
     // calling IPC exposed from preload script
     window.electron.ipcRenderer.on('read-data', (arg: unknown) => {
       // eslint-disable-next-line no-console
-      setData(JSON.parse(arg as string) as Fields[]);
+      setData(JSON.parse(arg as string) as UserData[]);
     });
 
     window.electron.ipcRenderer.sendMessage('read-data');
@@ -41,15 +41,14 @@ function Main() {
   };
 
   const handleEditing = (params: GridCellEditCommitParams): void => {
-    const { field, id, value } = params;
-
-    const old = data?.find((e) => e.id === id) as {
-      [key in OneOfFields]: string;
+    const { field, id, value } = params as {
+      field: Fields;
+      id: string;
+      value: string;
     };
 
-    if (old[field as OneOfFields] === value) {
-      return;
-    }
+    const old = data?.find((e) => e.id === id);
+    if (!old || old[field] === value) return;
 
     WriteData({ field, id, value });
   };

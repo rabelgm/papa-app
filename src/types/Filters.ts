@@ -1,3 +1,3 @@
-import { Fields } from './Data';
+import { User } from './Data';
 
-export type PersonFilters = Fields;
+export type PersonFilters = Partial<User>;
