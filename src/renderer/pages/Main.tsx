@@ -23,13 +23,15 @@ function Main() {
   const defferedData = useDeferredValue(data);
 
   useEffect(() => {
-    // calling IPC exposed from preload script
-    window.electron.ipcRenderer.on('read-data', (arg: unknown) => {
-      // eslint-disable-next-line no-console
-      setData(JSON.parse(arg as string) as UserData[]);
-    });
+    if (window?.electron?.ipcRenderer !== null) {
+      // calling IPC exposed from preload script
+      window?.electron?.ipcRenderer.on('read-data', (arg: unknown) => {
+        // eslint-disable-next-line no-console
+        setData(JSON.parse(arg as string) as UserData[]);
+      });
 
-    window.electron.ipcRenderer.sendMessage('read-data');
+      window?.electron?.ipcRenderer.sendMessage('read-data');
+    }
 
     return () => {
       setData(undefined);
