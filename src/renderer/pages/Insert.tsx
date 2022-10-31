@@ -10,31 +10,42 @@ import Stack from '@mui/material/Stack';
 import MenuItem from '@mui/material/MenuItem';
 import users from '../../../assets/user.svg';
 
-const currencies = [
+const directions = [
   {
-    value: 'USD',
-    label: '$',
+    value: 'IZQ',
+    label: 'Izquierda',
   },
   {
-    value: 'EUR',
-    label: '€',
+    value: 'DCH',
+    label: 'Derecha',
+  },
+];
+const rol = [
+  {
+    value: 'Inquilino',
+    label: 'Inquilino',
   },
   {
-    value: 'BTC',
-    label: '฿',
-  },
-  {
-    value: 'JPY',
-    label: '¥',
+    value: 'Propietario',
+    label: 'Propietario',
   },
 ];
 
-function Insert() {
-  const [formData, setFormData] = useState<UserData>();
+function createUser(params: unknown) {
+  window.electron.ipcRenderer.sendMessage('user:create', [params]);
+}
 
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    console.log(event.target, event.target.value);
-    // setFormData(event.target);
+function Insert() {
+  const [formData, setFormData] = useState<UserData>({
+    dir: 'IZQ',
+    role: 'Inquilino',
+  });
+
+  const handleChange = (
+    key: string,
+    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    setFormData({ ...formData, [key]: event.target.value });
   };
 
   return (
@@ -66,33 +77,112 @@ function Insert() {
             Insertar Inquilino
           </Typography>
           <Stack spacing={3}>
-            <TextField label="Edificio" size="small" variant="filled" />
-            <TextField label="Piso" size="small" variant="filled" />
             <TextField
+              required
+              label="Edificio"
+              size="small"
+              variant="filled"
+              value={formData?.building}
+              onChange={(e) => handleChange('building', e)}
+            />
+            <TextField
+              required
+              label="Piso"
+              size="small"
+              variant="filled"
+              value={formData?.floor}
+              onChange={(e) => handleChange('floor', e)}
+            />
+            <TextField
+              required
               label="Direccion"
               size="small"
               variant="filled"
               select
               value={formData?.dir}
-              onChange={handleChange}
+              onChange={(e) => handleChange('dir', e)}
             >
-              {currencies.map((option) => (
+              {directions.map((option) => (
                 <MenuItem key={option.value} value={option.value}>
                   {option.label}
                 </MenuItem>
               ))}
             </TextField>
-            <TextField label="Nombre" size="small" variant="filled" />
-            <TextField label="Apellido" size="small" variant="filled" />
-            <TextField label="Numero Movil" size="small" variant="filled" />
-            <TextField label="Plaza de Garage" size="small" variant="filled" />
-            <TextField label="Intercomunicador" size="small" variant="filled" />
-            <TextField label="Numero de LLave" size="small" variant="filled" />
-            <TextField label="Rol" size="small" variant="filled" />
+            <TextField
+              required
+              label="Nombre"
+              size="small"
+              variant="filled"
+              value={formData?.firstName}
+              onChange={(e) => handleChange('firstName', e)}
+            />
+            <TextField
+              required
+              label="Apellido"
+              size="small"
+              variant="filled"
+              value={formData?.lastName}
+              onChange={(e) => handleChange('lastName', e)}
+            />
+            <TextField
+              required
+              label="Numero Movil"
+              size="small"
+              variant="filled"
+              value={formData?.phoneNumber}
+              onChange={(e) => handleChange('phoneNumber', e)}
+            />
+            <TextField
+              required
+              label="Plaza de Garage"
+              size="small"
+              variant="filled"
+              value={formData?.garagePlace}
+              onChange={(e) => handleChange('garagePlace', e)}
+            />
+            <TextField
+              required
+              label="Intercomunicador"
+              size="small"
+              variant="filled"
+              value={formData?.interCom}
+              onChange={(e) => handleChange('interCom', e)}
+            />
+            <TextField
+              required
+              label="Numero de LLave"
+              size="small"
+              variant="filled"
+              value={formData?.keyNumb}
+              onChange={(e) => handleChange('keyNumb', e)}
+            />
+            <TextField
+              required
+              label="Rol"
+              size="small"
+              variant="filled"
+              select
+              value={formData?.role}
+              onChange={(e) => handleChange('role', e)}
+            >
+              {rol.map((option) => (
+                <MenuItem key={option.value} value={option.value}>
+                  {option.label}
+                </MenuItem>
+              ))}
+            </TextField>
           </Stack>
         </CardContent>
         <CardActions sx={{ marginTop: 2 }}>
-          <Button size="large" variant="contained" fullWidth disableElevation>
+          <Button
+            onClick={() => {
+              createUser(formData);
+            }}
+            size="large"
+            variant="contained"
+            fullWidth
+            disableElevation
+          >
             Crear
           </Button>
         </CardActions>

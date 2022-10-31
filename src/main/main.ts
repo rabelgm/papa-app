@@ -13,6 +13,7 @@ import { app, BrowserWindow, shell, ipcMain } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import fs from 'fs';
+import { randomUUID } from 'node:crypto';
 import { Fields, User } from 'types/Data';
 import { resolveHtmlPath } from './util';
 
@@ -47,6 +48,20 @@ ipcMain.on(
     const dataIndex = data.findIndex((e) => e.id === dto.id) as number;
 
     data[dataIndex][dto.field] = dto.value;
+
+    fs.writeFileSync('./data.json', JSON.stringify(data));
+    event.reply('write-data', data);
+  }
+);
+
+ipcMain.on(
+  'user:create',
+  async (event, arg: { field: Fields; id: string; value: string }[]) => {
+    const dto = arg[0];
+    const JSONData = fs.readFileSync('./data.json', { encoding: 'utf-8' });
+    const data = JSON.parse(JSONData) as User[];
+
+    data.push({ ...dto, id: randomUUID() });
 
     fs.writeFileSync('./data.json', JSON.stringify(data));
     event.reply('write-data', data);

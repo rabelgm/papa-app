@@ -1,6 +1,6 @@
 import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron';
 
-export type Channels = 'read-data' | 'write-data';
+export type Channels = 'read-data' | 'write-data' | 'user:create';
 
 contextBridge.exposeInMainWorld('electron', {
   ipcRenderer: {
